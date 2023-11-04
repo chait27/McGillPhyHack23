@@ -64,33 +64,8 @@ class Lattice:
                 pos1 = k1 + k2 * self.size[1]
                 for i in range(len(self.unitcell.interactions)):
                     b1, b2, M, off = self.unitcell.interactions[i]
-<<<<<<< HEAD
-                    s1 = self.spin_matrix[pos1, :, b1]
-                    s2 = self.spin_matrix[pos1 + off[0] +
-                                          off[1] * self.size[1], :, b2]
-                    H += exchangeEnergy(s1, s2, M)
-
-        return H
-=======
                     s1  = self.spin_matrix[pos1, :, b1]
                     s2  = self.spin_matrix[(k1 + off[0]) % self.size[0] + (k2 * self.size[1] + off[1]) % self.size[1],  :, b2]
                     H += exchangeEnergy(s1, s2, M)
 
                     return H 
-
->>>>>>> Hamiltonian
-
-
-if __name__ == '__main__':
-    basisvecs = (np.array([1, 0]), np.array([0, 1]))
-    # sites = (np.array([1, 1]), np.array([1, 2]))
-    sites = (np.array([0, 0]), )
-
-    uc = UnitCell(basisvecs, sites)
-    size = (3, 3)
-    uc.addInteraction(0, 0, np.identity(3), (0, 1))
-
-    L = Lattice(size=size, unitcell=uc, spin_matrix=None)
-    print(L.spin_matrix.shape)
-
-    print(L.Hamiltonian())
