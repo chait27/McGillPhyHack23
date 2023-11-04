@@ -27,7 +27,7 @@ def example_MC():
     size = (1, 1)
 
     L = Lattice(size=size, unitcell=uc, spin_matrix=None)
-    MC = MonteCarlo(L, thermalization_iter=5, measurement_iter=10)
+    MC = MonteCarlo(L, thermalization_iter=5, measurement_iter=10, T=1)
 
     H0 = L.Hamiltonian()
     print(H0)
