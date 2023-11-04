@@ -7,15 +7,13 @@ from typing import Callable, Tuple, List
 from basicstuff import *
 
 
-def simulator(Lattice: object, n_iterations: int):
-    size = Lattice.lattivec.size[0]
-    spins = np.array([randomSpin() for _ in range(size)])
+def simulator(lattice: Lattice, n_iterations: int):
 
     for i in range(n_iterations):
-        site = np.random.randint(size)
+        site = np.random.randint(lattice.n_sites)
         # Calculate Hamiltonian's value for the state and call it H0
-        initial_spin = spins[site]
-        spins[site] = randomSpin()
+        initial_spin = lattice.spin_matrix[site]
+        lattice.spin_matrix[site] = randomSpin()
 
         # Let dH = H(spins) - H0
         # if np.random.random() <= exp(-dH/(k_BT)): continue

@@ -3,7 +3,7 @@ import numpy as np
 
 def randomSpin():
     theta, phi = np.random.uniform(0, np.pi), np.random.uniform(0, 2 * np.pi)
-    return (np.cos(theta) * np.cos(phi), np.cos(theta) * np.sin(phi), np.sin(theta))
+    return np.array([np.cos(theta) * np.cos(phi), np.cos(theta) * np.sin(phi), np.sin(theta)])
 
 
 def exchangeEnergy(s1, s2, intMatrix):
@@ -27,10 +27,24 @@ class UnitCell:
 class Lattice:
     unitcell: UnitCell
     size: tuple
-    latticevec: np.ndarray
+    lattice_vec: np.ndarray  # Nx2 matrix
+    n_sites: int
+    spin_matrix: np.ndarray  # Nx3 matrix
 
-    def __init__(self):
-        pass
+    def __init__(self, size: tuple, unitcell: UnitCell):
+        self.unitcell = UnitCell
+        self.size = size
+
+        self.n_sites = size[0]*size[1]
+
+        self.lattice_vec = np.zeros(shape=(self.n_sites, ))
+
+        for k2 in range(self.size[1]):
+            for k1 in range(self.size[0]):
+                self.lattice_vec[k1+k2*size[1]] = k1*self.unitcell.basisvec[0] + \
+                    k2*self.unitcell.basisvec[1]
+
+        self.spin_matrix = np.array([randomSpin() for _ in self.n_sites])
 
     def Hamiltonian(self):
         pass
