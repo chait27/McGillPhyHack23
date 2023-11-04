@@ -37,4 +37,5 @@ def example_MC():
     print(MC.get_latest_H())
 
 
-example_MC()
+if __name__ == "__main__":
+    example_MC()

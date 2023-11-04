@@ -17,7 +17,7 @@ class MonteCarlo:
     thermalization_iter: int
     measurement_iter: int
 
-    def __init__(self, l: Lattice, thermalization_iter: int, measurement_iter: int, T: float):
+    def __init__(self, l: Lattice, thermalization_iter: int, measurement_iter: int, T: float = 1):
         self.lattice = l
         self.thermalization_iter = thermalization_iter
         self.measurement_iter = measurement_iter
