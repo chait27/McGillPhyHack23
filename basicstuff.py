@@ -44,7 +44,7 @@ class Lattice:
         for k2 in range(self.size[1]):
             for k1 in range(self.size[0]):
                 for (k, site) in enumerate(self.unitcell.sites):
-                    self.lattice_vec[k1+k2*size[1], :, k] = site + k1*self.unitcell.basisvec[0] + \
+                    self.lattice_vec[k1+k2*size[0], :, k] = site + k1*self.unitcell.basisvec[0] + \
                         k2*self.unitcell.basisvec[1]
 
         if spin_matrix is None:
