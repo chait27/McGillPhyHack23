@@ -8,13 +8,14 @@ from basicstuff import *
 
 
 def simulator(Lattice: object, n_iterations: int):
-    spins = np.repeat(np.ones(3), Lattice.size)    # Lattice.size x 3 array
+    size = Lattice.lattivec.size[0]
+    spins = np.array([randomSpin() for _ in range(size)])
 
     for i in range(n_iterations):
-        site = np.random.randint(Lattice.size)
+        site = np.random.randint(size)
         # Calculate Hamiltonian's value for the state and call it H0
         initial_spin = spins[site]
-        spins[site] = random_spin()
+        spins[site] = randomSpin()
 
         # Let dH = H(spins) - H0
         # if np.random.random() <= exp(-dH/(k_BT)): continue
