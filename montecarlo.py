@@ -43,6 +43,9 @@ class MonteCarlo:
             else:
                 self.lattice.spin_matrix[site] = initial_spin
 
+    def get_latest_H(self):
+        return self.lattice.Hamiltonian()
+
 
 def plot_spins(spins: np.ndarray):
     pass
