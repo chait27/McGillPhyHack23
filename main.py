@@ -24,7 +24,10 @@ def example_MC():
     sites = (np.array([1, 1]))
 
     uc = UnitCell(basisvecs, sites)
-    size = (1, 1)
+    size = (1, 2)
+
+    uc.addInteraction(0, 0, np.array(
+        [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]), (0, 0))
 
     L = Lattice(size=size, unitcell=uc, spin_matrix=None)
     MC = MonteCarlo(L, thermalization_iter=5, measurement_iter=10, T=1)
