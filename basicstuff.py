@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Tuple
 
 
 def randomSpin():
@@ -7,14 +8,15 @@ def randomSpin():
 
 
 def exchangeEnergy(s1, s2, intMatrix):
-    return np.dot(s1, np.dot(intMatrix, s2))
+    return np.matmul(s1.T, np.matmul(intMatrix, s2))
+
 
 class UnitCell:
     basisvec: tuple
     sites: tuple
     interactions: np.ndarray
 
-    def init(self, basisvec, sites):
+    def __init__(self, basisvec: Tuple[np.ndarray], sites: Tuple[np.ndarray]):
         self.basisvec = basisvec
         self.sites = sites
         self.interactions = []
@@ -27,39 +29,59 @@ class Lattice:
     unitcell: UnitCell
     size: tuple
     lattice_vec: np.ndarray  # Nx2 matrix
-    n_sites: int
+    n_cells: int
     spin_matrix: np.ndarray  # Nx3 matrix
 
-    def __init__(self, size: tuple, unitcell: UnitCell):
-        self.unitcell = UnitCell
+    def __init__(self, size: tuple, unitcell: UnitCell, spin_matrix: np.ndarray = None):
+        self.unitcell = unitcell
         self.size = size
 
-        self.n_sites = size[0]*size[1]
+        self.n_cells = size[0]*size[1]
 
-        self.lattice_vec = np.zeros(shape=(self.n_sites, ))
+        self.lattice_vec = np.zeros(
+            shape=(self.n_cells, 2, len(self.unitcell.sites)))
 
         for k2 in range(self.size[1]):
             for k1 in range(self.size[0]):
-                self.lattice_vec[k1+k2*size[1]] = k1*self.unitcell.basisvec[0] + \
-                    k2*self.unitcell.basisvec[1]
+                for (k, site) in enumerate(self.unitcell.sites):
+                    self.lattice_vec[k1+k2*size[1], :, k] = site + k1*self.unitcell.basisvec[0] + \
+                        k2*self.unitcell.basisvec[1]
 
-        self.spin_matrix = np.array([randomSpin() for _ in self.n_sites])
+        if spin_matrix is None:
+            self.spin_matrix = np.array([
+                np.array([randomSpin()
+                         for _ in range(len(self.unitcell.sites))]).T
+                for _ in range(self.n_cells)]
+            )
 
-    def Hamiltonian(self):
-        H = 0 
-        for k2 in range(self.size[1]): 
+        else:
+            self.spin_matrix = spin_matrix
+
+    def Hamiltonian(self) -> float:
+        H = 0
+        for k2 in range(self.size[1]):
             for k1 in range(self.size[0]):
                 pos1 = k1 + k2 * self.size[1]
                 for i in range(len(self.unitcell.interactions)):
                     b1, b2, M, off = self.unitcell.interactions[i]
-                    s1  = self.spin_matrix[pos1, :, b1]
-                    s2  = self.spin_matrix[pos1 + off[0] + off[1] * self.size[1],  :, b2]
+                    s1 = self.spin_matrix[pos1, :, b1]
+                    s2 = self.spin_matrix[pos1 + off[0] +
+                                          off[1] * self.size[1], :, b2]
                     H += exchangeEnergy(s1, s2, M)
 
+        return H
 
 
+if __name__ == '__main__':
+    basisvecs = (np.array([1, 0]), np.array([0, 1]))
+    # sites = (np.array([1, 1]), np.array([1, 2]))
+    sites = (np.array([0, 0]), )
 
+    uc = UnitCell(basisvecs, sites)
+    size = (3, 3)
+    uc.addInteraction(0, 0, np.identity(3), (0, 1))
 
+    L = Lattice(size=size, unitcell=uc, spin_matrix=None)
+    print(L.spin_matrix.shape)
 
-                
-
+    print(L.Hamiltonian())
