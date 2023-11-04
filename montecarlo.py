@@ -8,33 +8,40 @@ from typing import Callable, Tuple, List
 from basicstuff import *
 
 
+def lattice_copy(l: Lattice) -> Lattice:
+    return Lattice(l.unitcell, l.size, copy.deepcopy(l.spin_matrix))
+
+
 class MonteCarlo:
     l: Lattice
     thermalization_iter: int
     measurement_iter: int
 
-    def __init__(self, l: Lattice, thermalization_iter: int, measurement_iter: int):
+    def __init__(self, l: Lattice, thermalization_iter: int, measurement_iter: int, T: float):
         self.lattice = l
         self.thermalization_iter = thermalization_iter
         self.measurement_iter = measurement_iter
+        self.T = T
 
     def simulator(self, n_iterations: int):
         new_lattice = lattice_copy(self.lattice)
         self.lattice = new_lattice
+        k_B = 1
 
         for i in range(n_iterations):
             site = np.random.randint(new_lattice.n_cells)
-            # Calculate Hamiltonian's value for the state and call it H0
-            initial_spin = new_lattice.spin_matrix[site]
-            new_lattice.spin_matrix[site] = randomSpin()
+            H0 = self.lattice.Hamiltonian()
 
-            # Let dH = H(spins) - H0
-            # if np.random.random() <= exp(-dH/(k_BT)): continue
-            # else: spins[site] = initial_spin
+            initial_spin = self.lattice.spin_matrix[site]
+            # changing a spin randomly
+            self.lattice.spin_matrix[site] = randomSpin()
 
+            dH = self.lattice.Hamiltonian() - H0
 
-def lattice_copy(l: Lattice) -> Lattice:
-    return Lattice(l.unitcell, l.size, l.spin_matrix)
+            if np.random.random() <= np.exp(-dH/(k_B*self.T)):
+                continue
+            else:
+                self.lattice.spin_matrix[site] = initial_spin
 
 
 def plot_spins(spins: np.ndarray):
