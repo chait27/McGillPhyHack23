@@ -1,6 +1,7 @@
 from basicstuff import *
 from montecarlo import *
 from plotting import *
+import numpy as np
 
 
 def example_1():
@@ -17,6 +18,8 @@ def example_1():
     print(lattice.spin_matrix.shape)
     plot_basic_unitcell(lattice)
     plot_spins(lattice)
+
+
 
 
 def example_MC():
@@ -42,3 +45,36 @@ def example_MC():
 
 if __name__ == "__main__":
     example_MC()
+
+
+def temperature_example(min_temp, max_temp, resolution): 
+    temp_range = np.linspace(min_temp, max_temp, resolution)
+    temp_magnetization = []
+    
+    for temp in temp_range:
+        magnetizations =  []
+        basisvecs = (np.array([1, 0]), np.array([0, 1]))
+        sites = (np.array([0, 0]),)
+        uc = UnitCell(basisvecs, sites)
+        size = (4, 4)
+
+        uc.addInteraction(0, 0, -1*np.identity(3), (0, 1))
+        # intmat1 = np.array([])
+        uc.addInteraction(0, 0, -1*np.identity(3), (1, 0))
+        uc.defineMagneticField(np.array([[0, 0,  0], ]))
+
+        L = Lattice(unitcell=uc, size=size, spin_matrix=None)
+
+        #for j in range(1):
+        MC = MonteCarlo(L, thermalization_iter=3000, measurement_iter=1000, T=temp)
+        H0 = L.Hamiltonian()
+        MC.simulate()
+        temp_magnetization.append(MC.get_parameters())
+            #magnetizations.append(MC.get_parameters())
+        #temp_magnetization.append(np.mean(magnetizations))
+        
+    return temp_magnetization
+
+temp_magnetization = temperature_example(0.01, 2, 40)
+np.save('temp_magnetization.npy', temp_magnetization)
+
