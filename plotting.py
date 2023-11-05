@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize 
-plt.rcParams['figure.figsize'] = (4,4)
+plt.rcParams['figure.figsize'] = (5,5)
 
 from basicstuff import *
 
@@ -139,50 +139,50 @@ def plot_spinsXYProjectionColor_inprogress(lattice: Lattice):
     massiveX, massiveY, massiveZ = [], [], []
     massiveXSpin, massiveYSpin, massiveZSpin = [], [], []
 
+   # massiveX = np.array(lattice_vec[:, 0, :])
+   # massiveY = np.array(lattice_vec[:, 1, :])
+   # massiveZSpin = np.array(spin_matrix[:,2,:])
+
+    #get_background(massiveX, massiveY, massiveZSpin, numSites*k1, k2, numSites)
+
     for site in range(numSites):
-        Xloc = np.array([lattice_vec[i][0][site] for i in range(numCell)])
-        Yloc = np.array([lattice_vec[i][1][site] for i in range(numCell)])
+        #Xloc = np.array([lattice_vec[i][0][site] for i in range(numCell)])
+        #Yloc = np.array([lattice_vec[i][1][site] for i in range(numCell)])
+        #Zloc = np.array([0 for _ in range(numCell)])
+
+        Xloc = lattice_vec[:, 0, site]
+        Yloc = lattice_vec[:, 1, site]
         Zloc = np.array([0 for _ in range(numCell)])
 
-        XSpin = np.array([spin_matrix[i][0][site] for i in range(numCell)])
-        YSpin = np.array([spin_matrix[i][1][site] for i in range(numCell)])
-        ZSpin = np.array([spin_matrix[i][2][site] for i in range(numCell)])
+        XSpin = spin_matrix[:, 0, site]
+        YSpin = spin_matrix[:, 1, site]
+        ZSpin = spin_matrix[:, 2, site]
+
+        #XSpin = np.array([spin_matrix[i][0][site] for i in range(numCell)])
+        #YSpin = np.array([spin_matrix[i][1][site] for i in range(numCell)])
+        #ZSpin = np.array([spin_matrix[i][2][site] for i in range(numCell)])
 
         massiveX, massiveY, massiveZ = np.concatenate((massiveX, Xloc)), np.concatenate((massiveY, Yloc)), np.concatenate((massiveZ, Zloc))
         massiveXSpin, massiveYSpin, massiveZSpin = np.concatenate((massiveXSpin, XSpin)), np.concatenate((massiveYSpin, YSpin)), np.concatenate((massiveZSpin, ZSpin))
 
         c = next(color)
         norm = np.sqrt(XSpin**2 + YSpin**2)
-        #plt.quiver(Xloc, Yloc, XSpin, YSpin, color = 'black', label='Site ' + str(s) + " Spin")
+        #plt.quiver(Xloc, Yloc, XSpin, YSpin, color = c, label='Site ' + str(s) + " Spin")
         s += 1
-    
+
     get_background(massiveX, massiveY, massiveZSpin, numSites*k1, k2, numSites)
     plt.quiver(massiveX, massiveY, massiveXSpin, massiveYSpin, color = 'black', label='Site ' + str(s) + " Spin")
     plt.show()
 
 def get_background(X, Y, SpinZ, k1, k2, n):
-   
 
-    print(SpinZ.shape)
     Znew = np.zeros((k1, k2))
     for n in range(SpinZ.size-1):
         print((n)%k1, (n)//k1)
         Znew[(n)%k1, (n)//k1] = SpinZ[n]
-    plt.pcolormesh(X.reshape([k1,k2]), Y.reshape([k1, k2]), Znew, alpha= 0.8, shading='gouraud', cmap='coolwarm', edgecolors='none')
+
+    plt.pcolormesh(X.reshape([k1,k2]), Y.reshape([k1, k2]), Znew, alpha= 1, shading='gouraud', cmap='coolwarm', edgecolors='none')
+    
+    #plt.pcolormesh(X, Y, Znew, alpha= 1, shading='gouraud', cmap='coolwarm', edgecolors='none')   
     #plt.colorbar("ZSpin")
     #plt.pcolor(X.reshape([-1, X.size]),Y.reshape([Y.size, -1]), Znew)
-
-
-"""plt.contourf(X,Y,Z=massiveZSpin, extent=(xgrid.min(), xgrid.max(), ygrid.min(), ygrid.max()))
-    #Spin = np.sqrt(massiveXSpin**2 + massiveYSpin**2 + massiveZSpin**2)
-    #cmap = plt.get_cmap('viridis')
-    #norm = Normalize(vmin = Spin.min(), vmax = Spin.max())
-
-    #spinz_grid = np.interp(X, massiveX, Spin)
-    #colors = cmap(massiveZSpin)
-
-    #plt.imshow(colors, extent=(xgrid.min(), xgrid.max(), ygrid.min(), ygrid.max()), origin='lower', interpolation='bicubic', aspect='auto')
-    #plt.colorbar(label='TODO')
-
-    #plt.contourf(xgrid, ygrid, colors, levels=100, extend='both')
-    #plt.scatter(massiveX, massiveY, c=massiveZSpin, cmap=cmap)"""
