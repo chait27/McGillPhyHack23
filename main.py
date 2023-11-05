@@ -21,20 +21,21 @@ def example_1():
 
 def example_MC():
     basisvecs = (np.array([1, 0]), np.array([0, 1]))
-    sites = (np.array([1, 1]))
+    sites = (np.array([0, 0]),)
 
     uc = UnitCell(basisvecs, sites)
-    size = (1, 2)
+    size = (1, 3)
 
-    uc.addInteraction(0, 0, np.array(
-        [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]), (0, 0))
+    uc.addInteraction(0, 0, -1*np.identity(3), (0, 1))
 
-    L = Lattice(size=size, unitcell=uc, spin_matrix=None)
-    MC = MonteCarlo(L, thermalization_iter=5, measurement_iter=10, T=1)
-
+    L = Lattice(unitcell=uc, size=size, spin_matrix=None)
+    MC = MonteCarlo(L, thermalization_iter=20, measurement_iter=0, T=0.1)
     H0 = L.Hamiltonian()
-    print(H0)
-    print(MC.get_latest_H())
+
+    print(L.spin_matrix)
+    MC.simulate()
+    print(f'\nEnergies: {H0} -> {MC.get_latest_H()}')
+    print(MC.lattice.spin_matrix)
 
 
 example_MC()

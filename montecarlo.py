@@ -23,25 +23,34 @@ class MonteCarlo:
         self.measurement_iter = measurement_iter
         self.T = T
 
-    def simulator(self, n_iterations: int):
+    def simulate(self):
         new_lattice = lattice_copy(self.lattice)
         self.lattice = new_lattice
         k_B = 1
 
-        for i in range(n_iterations):
-            site = np.random.randint(new_lattice.n_cells)
-            H0 = self.lattice.Hamiltonian()
+        for i in range(self.thermalization_iter + self.measurement_iter):
+            for n in range(self.lattice.n_cells):
+                for s in range(len(self.lattice.unitcell.sites)):
+                    newest_lattice = lattice_copy(self.lattice)
+                    H0 = self.lattice.Hamiltonian()
 
-            initial_spin = self.lattice.spin_matrix[site]
-            # changing a spin randomly
-            self.lattice.spin_matrix[site] = randomSpin()
+                    initial_spin = self.lattice.spin_matrix[n,
+                                                            :, s]
+                    # changing a spin randomly
+                    temp = randomSpin()
+                    newest_lattice.spin_matrix[n, :, s] = temp
 
-            dH = self.lattice.Hamiltonian() - H0
+                    dH = newest_lattice.Hamiltonian() - H0
+                    k = np.random.random()
 
-            if np.random.random() <= np.exp(-dH/(k_B*self.T)):
-                continue
-            else:
-                self.lattice.spin_matrix[site] = initial_spin
+                    # if k > np.exp(-dH/(k_B*self.T)):
+                    if k > np.exp(dH/(k_B*self.T)):
+                        print(k)
+                        self.lattice.spin_matrix[n,
+                                                 :, s] = temp
+
+                    if i < self.thermalization_iter:
+                        pass
 
     def get_latest_H(self):
         return self.lattice.Hamiltonian()
