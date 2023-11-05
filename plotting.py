@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize 
+plt.rcParams['figure.figsize'] = (4,4)
 
 from basicstuff import *
 
@@ -64,7 +65,7 @@ def plot_spins3D(lattice: Lattice):
         ZSpin = [spin_matrix[i][2][site] for i in range(numCell)]
         
         c = next(color)
-        ax.quiver(Xloc, Yloc, Zloc, XSpin, YSpin, ZSpin, length=0.5, normalize=True, color = c, label='Site ' + str(s) + " Spin")
+        ax.quiver(Xloc, Yloc, Zloc, XSpin, YSpin, ZSpin, length=0.5, normalize=True, color = 'black', label='Site ' + str(s) + " Spin")
         #ax.scatter(Xloc, Yloc, Zloc, color = c)
         s += 1
     
@@ -108,7 +109,7 @@ def plot_spinsXYProjection(lattice: Lattice):
         
         c = next(color)
         norm = np.sqrt(XSpin**2 + YSpin**2)
-        plt.quiver(Xloc, Yloc, XSpin/norm, YSpin/norm, color = c, label='Site ' + str(s) + " Spin")
+        plt.quiver(Xloc, Yloc, XSpin/norm, YSpin/norm, color = 'black', label='Site ' + str(s) + " Spin")
         #plt.scatter(Xloc, Yloc, color = c)
         s += 1
 
@@ -152,25 +153,25 @@ def plot_spinsXYProjectionColor_inprogress(lattice: Lattice):
 
         c = next(color)
         norm = np.sqrt(XSpin**2 + YSpin**2)
-        plt.quiver(Xloc, Yloc, XSpin/norm, YSpin/norm, color = 'black', label='Site ' + str(s) + " Spin")
+        #plt.quiver(Xloc, Yloc, XSpin, YSpin, color = 'black', label='Site ' + str(s) + " Spin")
         s += 1
-
-    xgrid, ygrid = np.linspace(massiveX.min(), massiveX.max(), 100), np.linspace(massiveY.min(), massiveY.max(), 100)
-    #X, Y = np.meshgrid(xgrid, ygrid)
-    cmap = plt.get_cmap('coolwarm')
-    colors = cmap(massiveZSpin)
-    print(colors)
-    plt.imshow(massiveZSpin.reshape(k1, k2), cmap = cmap, vmin = massiveZSpin.min(), 
-                                    vmax = massiveZSpin.max(), 
-                                    extent=(xgrid.min(), xgrid.max(), ygrid.min(), ygrid.max()), 
-                                    origin='lower', interpolation='none', aspect='auto')
-    plt.colorbar(label='TODO')
-
     
-    plt.xlabel("X")
-    plt.ylabel("Y")
+    get_background(massiveX, massiveY, massiveZSpin, numSites*k1, k2, numSites)
+    plt.quiver(massiveX, massiveY, massiveXSpin, massiveYSpin, color = 'black', label='Site ' + str(s) + " Spin")
     plt.show()
-    
+
+def get_background(X, Y, SpinZ, k1, k2, n):
+   
+
+    print(SpinZ.shape)
+    Znew = np.zeros((k1, k2))
+    for n in range(SpinZ.size-1):
+        print((n)%k1, (n)//k1)
+        Znew[(n)%k1, (n)//k1] = SpinZ[n]
+    plt.pcolormesh(X.reshape([k1,k2]), Y.reshape([k1, k2]), Znew, alpha= 0.8, shading='gouraud', cmap='coolwarm', edgecolors='none')
+    #plt.colorbar("ZSpin")
+    #plt.pcolor(X.reshape([-1, X.size]),Y.reshape([Y.size, -1]), Znew)
+
 
 """plt.contourf(X,Y,Z=massiveZSpin, extent=(xgrid.min(), xgrid.max(), ygrid.min(), ygrid.max()))
     #Spin = np.sqrt(massiveXSpin**2 + massiveYSpin**2 + massiveZSpin**2)
