@@ -15,14 +15,19 @@ class UnitCell:
     basisvec: tuple
     sites: tuple
     interactions: np.ndarray
+    B: np.ndarray       # s x 3 matrix
 
     def __init__(self, basisvec: Tuple[np.ndarray], sites: Tuple[np.ndarray]):
         self.basisvec = basisvec
         self.sites = sites
         self.interactions = []
+        self.B = np.zeros((len(sites), 3))
 
     def addInteraction(self, b1, b2, intMatrix, offset):
         self.interactions.append((b1, b2, intMatrix, offset))
+
+    def defineMagneticField(self, B: np.ndarray):
+        self.B = B
 
 
 class Lattice:
@@ -68,5 +73,9 @@ class Lattice:
                     s2 = self.spin_matrix[(
                         k1 + off[0]) % self.size[0] + (k2 * self.size[0] + off[1]) % self.size[1], :, b2]
                     H += exchangeEnergy(s1, s2, M)
+
+                for i in range(len(self.unitcell.sites)):
+                    H -= np.dot(self.spin_matrix[pos1,
+                                :, i], self.unitcell.B[i, :])
 
         return H

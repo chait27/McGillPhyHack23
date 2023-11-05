@@ -28,6 +28,8 @@ class MonteCarlo:
         self.lattice = new_lattice
         k_B = 1
 
+        magnetization_array = np.array([])
+
         for i in range(self.thermalization_iter + self.measurement_iter):
             for n in range(self.lattice.n_cells):
                 for s in range(len(self.lattice.unitcell.sites)):
@@ -36,24 +38,27 @@ class MonteCarlo:
 
                     initial_spin = self.lattice.spin_matrix[n,
                                                             :, s]
-                    # changing a spin randomly
+                    # changing the spin randomly
                     temp = randomSpin()
                     newest_lattice.spin_matrix[n, :, s] = temp
 
                     dH = newest_lattice.Hamiltonian() - H0
                     k = np.random.random()
 
-                    # if k > np.exp(-dH/(k_B*self.T)):
                     if k > np.exp(dH/(k_B*self.T)):
-                        print(k)
                         self.lattice.spin_matrix[n,
                                                  :, s] = temp
 
-                    if i < self.thermalization_iter:
-                        pass
+                    if i > self.thermalization_iter and i % 20 == 0:
+                        magnetization_array = np.append(
+                            magnetization_array, self.get_parameters())
 
     def get_latest_H(self):
         return self.lattice.Hamiltonian()
+
+    def get_parameters(self):
+        magnetization = np.sum(self.lattice.spin_matrix, axis=0)
+        return magnetization
 
 
 def plot_spins(spins: np.ndarray):
