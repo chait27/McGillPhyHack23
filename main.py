@@ -21,20 +21,23 @@ def example_1():
 
 def example_MC():
     basisvecs = (np.array([1, 0]), np.array([0, 1]))
-    sites = (np.array([1, 1]))
+    sites = (np.array([0, 0]),)
 
     uc = UnitCell(basisvecs, sites)
-    size = (1, 2)
+    size = (4, 4)
 
-    uc.addInteraction(0, 0, np.array(
-        [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]), (0, 0))
+    uc.addInteraction(0, 0, -1*np.identity(3), (0, 1))
+    # intmat1 = np.array([])
+    uc.addInteraction(0, 0, -1*np.identity(3), (1, 0))
+    uc.defineMagneticField(np.array([[1, 0,  0], ]))
 
-    L = Lattice(size=size, unitcell=uc, spin_matrix=None)
-    MC = MonteCarlo(L, thermalization_iter=5, measurement_iter=10, T=1)
-
+    L = Lattice(unitcell=uc, size=size, spin_matrix=None)
+    MC = MonteCarlo(L, thermalization_iter=0, measurement_iter=2000, T=0.1)
     H0 = L.Hamiltonian()
-    print(H0)
-    print(MC.get_latest_H())
+
+    MC.simulate()
+    print(f'\nEnergies: {H0} -> {MC.get_latest_H()}')
+    print(MC.get_parameters(), np.linalg.norm(MC.get_parameters()))
 
 
 if __name__ == "__main__":
