@@ -6,6 +6,7 @@ import copy
 
 from typing import Callable, Tuple, List
 from basicstuff import *
+from plotting import *
 
 
 def lattice_copy(l: Lattice) -> Lattice:
@@ -49,9 +50,12 @@ class MonteCarlo:
                         self.lattice.spin_matrix[n,
                                                  :, s] = temp
 
-                    if i > self.thermalization_iter and i % 20 == 0:
-                        magnetization_array = np.append(
-                            magnetization_array, self.get_parameters())
+            if i > self.thermalization_iter and i % 20 == 0:
+                magnetization_array = np.append(
+                    magnetization_array, self.get_parameters())
+            print(i)
+            if (i%500 == 0):
+                plot_spinsXYProjectionColor_inprogress(self.lattice, i, self.T)
 
     def get_latest_H(self):
         return self.lattice.Hamiltonian()

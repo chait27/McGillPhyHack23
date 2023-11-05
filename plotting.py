@@ -121,68 +121,67 @@ def plot_spinsXYProjection(lattice: Lattice):
     plt.show()
 
 
-def plot_spinsXYProjectionColor_inprogress(lattice: Lattice):
+def plot_spinsXYProjectionColor_inprogress(lattice: Lattice, i: int, temp: float):
+    fig, ax = plt.subplots(1, 1)
+
     (k1, k2) = lattice.size
-    lattice_vec = lattice.lattice_vec  # n_cells x 2 x len(unitcell.sites) matrix
+    # n_cells x 2 x len(unitcell.sites) matrix
+    lattice_vec = lattice.lattice_vec
     numCell = lattice.n_cells
-    spin_matrix = lattice.spin_matrix  # n_cells x 3 x len(unitcell.sites) matrix
+    # n_cells x 3 x len(unitcell.sites) matrix
+    spin_matrix = lattice.spin_matrix
 
     numCell, _, numSites = spin_matrix.shape
-    
+
     if (k1 != numCell // k2):
         print("Size Error")
         print(k1, k2, numCell)
         return None
-    
+
     color, s = iter(plt.cm.rainbow(np.linspace(0, 1, numSites))), 0
 
-    massiveX, massiveY, massiveZ = [], [], []
-    massiveXSpin, massiveYSpin, massiveZSpin = [], [], []
+    # massiveX, massiveY, massiveZ = [], [], []
+    # massiveXSpin, massiveYSpin, massiveZSpin = [], [], []
 
-   # massiveX = np.array(lattice_vec[:, 0, :])
-   # massiveY = np.array(lattice_vec[:, 1, :])
-   # massiveZSpin = np.array(spin_matrix[:,2,:])
+    massiveX = np.array(lattice_vec[:, 0, :]).flatten(order='F')
+    massiveY = np.array(lattice_vec[:, 1, :]).flatten(order='F')
+    massiveZSpin = np.array(spin_matrix[:, 2, :]).flatten(order='F')
 
-    #get_background(massiveX, massiveY, massiveZSpin, numSites*k1, k2, numSites)
+    get_background(massiveX, massiveY, massiveZSpin,
+                   numSites*k1, k2, numSites, fig, ax)
 
     for site in range(numSites):
-        #Xloc = np.array([lattice_vec[i][0][site] for i in range(numCell)])
-        #Yloc = np.array([lattice_vec[i][1][site] for i in range(numCell)])
-        #Zloc = np.array([0 for _ in range(numCell)])
-
         Xloc = lattice_vec[:, 0, site]
         Yloc = lattice_vec[:, 1, site]
         Zloc = np.array([0 for _ in range(numCell)])
 
         XSpin = spin_matrix[:, 0, site]
         YSpin = spin_matrix[:, 1, site]
-        ZSpin = spin_matrix[:, 2, site]
-
-        #XSpin = np.array([spin_matrix[i][0][site] for i in range(numCell)])
-        #YSpin = np.array([spin_matrix[i][1][site] for i in range(numCell)])
-        #ZSpin = np.array([spin_matrix[i][2][site] for i in range(numCell)])
-
-        massiveX, massiveY, massiveZ = np.concatenate((massiveX, Xloc)), np.concatenate((massiveY, Yloc)), np.concatenate((massiveZ, Zloc))
-        massiveXSpin, massiveYSpin, massiveZSpin = np.concatenate((massiveXSpin, XSpin)), np.concatenate((massiveYSpin, YSpin)), np.concatenate((massiveZSpin, ZSpin))
 
         c = next(color)
         norm = np.sqrt(XSpin**2 + YSpin**2)
-        #plt.quiver(Xloc, Yloc, XSpin, YSpin, color = c, label='Site ' + str(s) + " Spin")
+        ax.quiver(Xloc, Yloc, XSpin, YSpin, color='black',
+                  label='Site ' + str(s) + " Spin")
         s += 1
+    s = str(round(temp, 2))
+    s = s.replace('.', 'p')
+    label = "Iteration " + str(i)+ "-Temp " +s+".jpeg"
+    ax.set_xlabel('Position (x)')
+    ax.set_ylabel('Position (y)')
+    ax.set_title('Position Space Spin Configuration' + "-Temp " + str(round(temp, 2)))
+    fig.tight_layout()
+    plt.savefig(label, dpi=600, bbox_inches='tight')
+    # plt.show()
 
-    get_background(massiveX, massiveY, massiveZSpin, numSites*k1, k2, numSites)
-    plt.quiver(massiveX, massiveY, massiveXSpin, massiveYSpin, color = 'black', label='Site ' + str(s) + " Spin")
-    plt.show()
-
-def get_background(X, Y, SpinZ, k1, k2, n):
+def get_background(X, Y, SpinZ, k1, k2, n, fig, ax):
 
     Znew = np.zeros((k1, k2))
     for n in range(SpinZ.size-1):
-        print((n)%k1, (n)//k1)
-        Znew[(n)%k1, (n)//k1] = SpinZ[n]
+        #print((n) % k1, (n)//k1)
+        Znew[(n) % k1, (n)//k1] = SpinZ[n]
 
-    plt.pcolormesh(X.reshape([k1,k2]), Y.reshape([k1, k2]), Znew, alpha= 1, shading='gouraud', cmap='coolwarm', edgecolors='none')
-    
-    #plt.pcolormesh(X, Y, Znew, alpha= 1, shading='gouraud', cmap='coolwarm', edgecolors='none')   
-    #plt.colorbar("ZSpin")
-    #plt.pcolor(X.reshape([-1, X.size]),Y.reshape([Y.size, -1]), Znew)
+    c = ax.pcolormesh(X.reshape([k1, k2]), Y.reshape(
+        [k1, k2]), Znew.T, alpha=1, shading='gouraud', cmap='coolwarm', edgecolors='none', vmin=-1, vmax=1)
+
+    cbar = fig.colorbar(c, ax=ax)
+    cbar.set_label('Spin in Z-direction', rotation=270)

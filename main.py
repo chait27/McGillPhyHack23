@@ -18,6 +18,7 @@ def example_1():
     print(lattice.spin_matrix.shape)
     plot_basic_unitcell(lattice)
     plot_spins(lattice)
+    plot_spinsXYProjectionColor_inprogress(lattice)
 
 
 
@@ -43,12 +44,24 @@ def example_MC():
     print(MC.get_parameters(), np.linalg.norm(MC.get_parameters()))
 
 
-if __name__ == "__main__":
-    example_MC()
+def exmaple_2():
+    uc = UnitCell((np.array([0, 1]), np.array([1, 0])), (np.array([0, 0]),))
+    x1 = np.array([[-1, 0, 0],[0, -1, 0], [0, 0, -1]])
+    # x2 = np.array([[0, 0, 0.4],[0, 0, 0], [0, 0, -1]])
+    uc.addInteraction(0, 0, x1, (0, 1))
+    uc.addInteraction(0, 0, x1, (1, 0))
+
+    lattice = Lattice(unitcell=uc, size=(6, 6), spin_matrix=None)
+
+    MC = MonteCarlo(lattice, thermalization_iter=3000, measurement_iter=0, T=0.5)
+
+    MC.simulate()
+
+
 
 
 def temperature_example(min_temp, max_temp, resolution): 
-    temp_range = np.linspace(min_temp, max_temp, resolution)
+    temp_range = np.geomspace(min_temp, max_temp, resolution)
     temp_magnetization = []
     
     for temp in temp_range:
@@ -56,12 +69,12 @@ def temperature_example(min_temp, max_temp, resolution):
         basisvecs = (np.array([1, 0]), np.array([0, 1]))
         sites = (np.array([0, 0]),)
         uc = UnitCell(basisvecs, sites)
-        size = (4, 4)
+        size = (6, 6)
 
         uc.addInteraction(0, 0, -1*np.identity(3), (0, 1))
         # intmat1 = np.array([])
         uc.addInteraction(0, 0, -1*np.identity(3), (1, 0))
-        uc.defineMagneticField(np.array([[0, 0,  0], ]))
+        # uc.defineMagneticField(np.array([[0, 0,  0], ]))
 
         L = Lattice(unitcell=uc, size=size, spin_matrix=None)
 
@@ -75,6 +88,6 @@ def temperature_example(min_temp, max_temp, resolution):
         
     return temp_magnetization
 
-temp_magnetization = temperature_example(0.01, 2, 40)
-np.save('temp_magnetization.npy', temp_magnetization)
-
+if __name__ == "__main__":
+    temp_magnetization = temperature_example(0.1, 10, 40)
+    np.save('temp_magnetization.npy', temp_magnetization)
