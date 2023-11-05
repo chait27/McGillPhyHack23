@@ -42,3 +42,30 @@ def example_MC():
 
 if __name__ == "__main__":
     example_MC()
+
+def temperature_sweep(min_temp, max_temp, resolution): 
+    temp_range = np.geomspace(min_temp, max_temp, resolution)
+    magnetization = []
+    
+    for temp in temp_range:
+        basisvecs = (np.array([1, 0]), np.array([0, 1]))
+        sites = (np.array([0, 0]),)
+
+        uc = UnitCell(basisvecs, sites)
+        size = (4, 4)
+
+        uc.addInteraction(0, 0, -1*np.identity(3), (0, 1))
+        # intmat1 = np.array([])
+        uc.addInteraction(0, 0, -1*np.identity(3), (1, 0))
+        uc.defineMagneticField(np.array([[1, 0,  0], ]))
+        L = Lattice(unitcell=uc, size=size, spin_matrix=None)
+        MC = MonteCarlo(L, thermalization_iter=3000, measurement_iter=1000, T=temp)
+        H0 = L.Hamiltonian()
+
+        MC.simulate()
+
+        magnetization.append(MC.get_parameters())
+    return magnetization
+
+np.save('temp_magnetization.npy', temperature_sweep(0.01, 10, 40))
+
